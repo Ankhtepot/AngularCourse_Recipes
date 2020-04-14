@@ -4,6 +4,7 @@ import {catchError, tap} from 'rxjs/operators';
 import {BehaviorSubject, throwError} from 'rxjs';
 import {User} from './user.model';
 import {Router} from '@angular/router';
+import { environment} from '../../environments/environment';
 
 export interface AuthResponseData {
   kind: string;
@@ -26,7 +27,7 @@ export class AuthService {
               private router: Router) { }
 
   signup(email: string, password: string) {
-    return this.httpClient.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyD4pjqkunXyNpXa7pgWpl1D1Cp0HPikN2w',
+    return this.httpClient.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + environment.firebaseAPIKey,
       {
         email: email,
         password: password,
@@ -34,7 +35,7 @@ export class AuthService {
         }
       )
       .pipe(
-        catchError(this.handleError),
+        catchError(AuthService.handleError),
         tap(responseData => {this.handleAuthentication(
           responseData.email,
           responseData.localId,
@@ -47,14 +48,14 @@ export class AuthService {
   }
 
   login(email: string, password: string) {
-    return this.httpClient.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyD4pjqkunXyNpXa7pgWpl1D1Cp0HPikN2w',
+    return this.httpClient.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + environment.firebaseAPIKey,
       {
         email: email,
         password: password,
         returnSecureToken: true
       })
       .pipe(
-        catchError(this.handleError),
+        catchError(AuthService.handleError),
         tap(responseData => {this.handleAuthentication(
           responseData.email,
           responseData.localId,
@@ -82,8 +83,8 @@ export class AuthService {
     }, expirationDuration)
   }
 
-  private handleError(errorResponse: HttpErrorResponse) {
-    let errorMessage = 'An unknowne rror occured!';
+  private static handleError(errorResponse: HttpErrorResponse) {
+    let errorMessage = 'An unknown error occurred!';
 
     if (!errorResponse.error || !errorResponse.error.error) {
       return throwError(errorMessage);
