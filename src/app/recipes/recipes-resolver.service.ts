@@ -21,7 +21,6 @@ export class RecipesResolverService implements Resolve<Recipe[]> {
   ) {}
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    // return this.dataStorageService.fetchRecipes();
     return this.store.select('recipes').pipe(
       take(1),
       map(recipesState => {
